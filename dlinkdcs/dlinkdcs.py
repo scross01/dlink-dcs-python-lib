@@ -6,23 +6,23 @@ from datetime import datetime
 
 class DlinkDCSCamera(object):
 
-    DAY_NIGHT_AUTO         = '0'
-    DAY_NIGHT_MANUAL       = '1'
-    DAY_NIGHT_ALWAYS_DAY   = '2'
+    DAY_NIGHT_AUTO = '0'
+    DAY_NIGHT_MANUAL = '1'
+    DAY_NIGHT_ALWAYS_DAY = '2'
     DAY_NIGHT_ALWAYS_NIGHT = '3'
-    DAY_NIGHT_SCHEDULE     = '4'
+    DAY_NIGHT_SCHEDULE = '4'
 
-    DAY_NIGHT_LIGHT_SENSOR_LOW    = '1'
+    DAY_NIGHT_LIGHT_SENSOR_LOW = '1'
     DAY_NIGHT_LIGHT_SENSOR_MEDIUM = '3'
-    DAY_NIGHT_LIGHT_SENSOR_HIGH   = '5'
+    DAY_NIGHT_LIGHT_SENSOR_HIGH = '5'
 
-    SUNDAY    = 1
-    MONDAY    = 2
-    TUESDAY   = 4
+    SUNDAY = 1
+    MONDAY = 2
+    TUESDAY = 4
     WEDNESDAY = 8
-    THURDAY   = 16
-    FRIDAY    = 32
-    SATURDAY  = 64
+    THURDAY = 16
+    FRIDAY = 32
+    SATURDAY = 64
 
     def __init__(self, host, user, password, port=80):
         self.host = host
@@ -33,7 +33,7 @@ class DlinkDCSCamera(object):
     def send_command(self, cmd, params={}):
         _url = 'http://%s:%d/%s' % (self.host, self.port, cmd)
         r = requests.get(_url, auth=(self.user, self.password), params=params)
-        log = logging.getLogger( "DlinkDCSCamera.send_command" )
+        log = logging.getLogger("DlinkDCSCamera.send_command")
         log.debug(r.request.url)
         return self.unmarshal_response(r.content.decode('utf-8'))
 
@@ -43,6 +43,9 @@ class DlinkDCSCamera(object):
             _keyvalue = line.strip().split("=")
             _obj[_keyvalue[0]] = _keyvalue[1]
         return _obj
+
+    def time_to_string(self, time):
+        return datetime.strftime(time, '%H:%M:%S')
 
     # GETTERS
 
@@ -104,7 +107,11 @@ class DlinkDCSCamera(object):
         }
         return self.send_command('daynight.cgi', _params)
 
-    def set_day_night_schedule(self, sun_start, sun_end, mon_start, mon_end, tue_start, tue_end, wed_start, wed_end, thu_start, thu_end, fri_start, fri_end, sat_start, sat_end ):
+    def set_day_night_schedule(self,
+                               sun_start, sun_end, mon_start, mon_end,
+                               tue_start, tue_end, wed_start, wed_end,
+                               thu_start, thu_end, fri_start, fri_end,
+                               sat_start, sat_end):
         _params = {
             'IRLedScheduleSunStart': sun_start,
             'IRLedScheduleSunEnd': sun_end,
@@ -146,12 +153,14 @@ class DlinkDCSCamera(object):
         }
         return self.send_command('motion.cgi', _params)
 
-    def set_motion_detection_schedule(self, schedule_mode, schedule_day, schedule_start, schedule_stop):
+    def set_motion_detection_schedule(self,
+                                      schedule_mode, schedule_day,
+                                      schedule_start, schedule_stop):
         _params = {
             'MotionDetectionScheduleMode': int(schedule_mode),  # TODO
             'MotionDetectionScheduleDay': int(schedule_day),   # TODO
-            'MotionDetectionScheduleTimeStart': datetime.strftime(schedule_start,'%H:%M:%S'),
-            'MotionDetectionScheduleTimeStop': datetime.strftime(schedule_stop,'%H:%M:%S'),
+            'MotionDetectionScheduleTimeStart': self.time_to_string(schedule_start),
+            'MotionDetectionScheduleTimeStop': self.time_to_string(schedule_stop),
             'ConfigReboot': 'no',
         }
         return self.send_command('motion.cgi', _params)
@@ -170,26 +179,28 @@ class DlinkDCSCamera(object):
         }
         return self.send_command('sdbdetection.cgi', _params)
 
-    def set_sound_detection_schedule(self, schedule_mode, schedule_day, schedule_start, schedule_stop):
+    def set_sound_detection_schedule(self,
+                                     schedule_mode, schedule_day,
+                                     schedule_start, schedule_stop):
         _params = {
-            'SoundDetectionScheduleMode': int(schedule_mode), # TODO
-            'SoundDetectionScheduleDay': int(schedule_day), # TODO
-            'SoundDetectionScheduleTimeStart': datetime.strftime(schedule_start,'%H:%M:%S'),
-            'SoundDetectionScheduleTimeStop': datetime.strftime(schedule_start,'%H:%M:%S'),
+            'SoundDetectionScheduleMode': int(schedule_mode),  # TODO
+            'SoundDetectionScheduleDay': int(schedule_day),  # TODO
+            'SoundDetectionScheduleTimeStart': self.time_to_string(schedule_start),
+            'SoundDetectionScheduleTimeStop': self.time_to_string(schedule_stop),
             'ConfigReboot': 'no',
         }
         return self.send_command('sdbdetection.cgi', _params)
 
     # HELPERS
 
-    def disbale_motion_detection(self):
+    def disable_motion_detection(self):
         return set_motion_detection(False)
 
-    def disbale_sound_detection(self):
-        return set_motion_detection(False)
+    def disable_sound_detection(self):
+        return set_sound_detection(False)
 
     def enable_motion_detection(self):
         return set_motion_detection(True)
 
     def enable_sound_detection(self):
-        return set_motion_detection(True)
+        return set_sound_detection(True)

@@ -1,11 +1,9 @@
 import os.path
+import sys
 import unittest
-from time import sleep
+import logging
+
 from configparser import ConfigParser
-import json
-from datetime import datetime
-
-
 from dlinkdcs import DlinkDCSCamera as ipcam
 
 config = ConfigParser()
@@ -20,6 +18,7 @@ CAM_HOST = config_defaults.get('host') or ''
 CAM_PORT = int(config_defaults.get('port')) or 80
 CAM_USER = config_defaults.get('user') or 'admin'
 CAM_PASS = config_defaults.get('password') or ''
+
 
 class TestDlinkDCSCam(unittest.TestCase):
     def setUp(self):
@@ -107,13 +106,13 @@ class TestDlinkDCSCam(unittest.TestCase):
 
     def test_set_day_night_schedule(self):
         r = self.ipcam.set_day_night_schedule(
-            '01:00', '13:00', # SUNDAY
-            '02:00', '14:00', # MONDAY
-            '03:00', '15:00', # TUESDAY
-            '04:00', '16:00', # WEDNESDAY
-            '05:00', '17:00', # THURSDAY
-            '06:00', '18:00', # FRIDAY
-            '07:00', '19:00', # SATURDAY
+            '01:00', '13:00',  # SUNDAY
+            '02:00', '14:00',  # MONDAY
+            '03:00', '15:00',  # TUESDAY
+            '04:00', '16:00',  # WEDNESDAY
+            '05:00', '17:00',  # THURSDAY
+            '06:00', '18:00',  # FRIDAY
+            '07:00', '19:00',  # SATURDAY
         )
         self.assertTrue(r['IRLedScheduleSunStart'] == '01:00')
         self.assertTrue(r['IRLedScheduleMonStart'] == '02:00')
@@ -130,13 +129,13 @@ class TestDlinkDCSCam(unittest.TestCase):
         self.assertTrue(r['IRLedScheduleFriEnd'] == '18:00')
         self.assertTrue(r['IRLedScheduleSatEnd'] == '19:00')
         r = self.ipcam.set_day_night_schedule(
-            '00:00', '00:00', # SUNDAY
-            '00:00', '00:00', # MONDAY
-            '00:00', '00:00', # TUESDAY
-            '00:00', '00:00', # WEDNESDAY
-            '00:00', '00:00', # THURSDAY
-            '00:00', '00:00', # FRIDAY
-            '00:00', '00:00', # SATURDAY
+            '00:00', '00:00',  # SUNDAY
+            '00:00', '00:00',  # MONDAY
+            '00:00', '00:00',  # TUESDAY
+            '00:00', '00:00',  # WEDNESDAY
+            '00:00', '00:00',  # THURSDAY
+            '00:00', '00:00',  # FRIDAY
+            '00:00', '00:00',  # SATURDAY
         )
         self.assertTrue(r['IRLedScheduleSunStart'] == '00:00')
         self.assertTrue(r['IRLedScheduleMonStart'] == '00:00')
@@ -207,6 +206,6 @@ class TestDlinkDCSCam(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    logging.basicConfig( stream=sys.stderr )
-    logging.getLogger( "DlinkDCSCamera.send_command" ).setLevel( logging.DEBUG )
+    logging.basicConfig(stream=sys.stderr)
+    logging.getLogger("DlinkDCSCamera.send_command").setLevel(logging.DEBUG)
     unittest.main()
