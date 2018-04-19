@@ -176,9 +176,28 @@ class TestDlinkDCSCam(unittest.TestCase):
         self.assertTrue('MotionDetectionBlockSet' in r)
         self.assertTrue(r['MotionDetectionBlockSet'] == '0000000000000000000000000')
 
+    def test_set_motion_detection_mode(self):
+        r = self.ipcam.set_motion_detection_mode(ipcam.MOTION_DETECTION_SCHEDULE)
+        self.assertTrue('MotionDetectionScheduleMode' in r)
+        self.assertTrue(r['MotionDetectionScheduleMode'] == '1')
+        r = self.ipcam.set_motion_detection_mode(ipcam.MOTION_DETECTION_ALWAYS)
+        self.assertTrue('MotionDetectionScheduleMode' in r)
+        self.assertTrue(r['MotionDetectionScheduleMode'] == '0')
+
     def test_set_motion_detection_schedule(self):
-        # TODO
-        self.assertTrue(False)
+        r = self.ipcam.set_motion_detection_schedule(
+            ipcam.MONDAY + ipcam.TUESDAY + ipcam.WEDNESDAY + ipcam.THURSDAY + ipcam.FRIDAY,
+            '06:30:00', '20:15:00'
+        )
+        self.assertTrue(r['MotionDetectionScheduleDay'] == '62')
+        self.assertTrue(r['MotionDetectionScheduleTimeStart'] == '06:30:00')
+        self.assertTrue(r['MotionDetectionScheduleTimeStop'] == '20:15:00')
+        r = self.ipcam.set_motion_detection_schedule(
+            0, '00:00:00', '00:00:00'
+        )
+        self.assertTrue(r['MotionDetectionScheduleDay'] == '0')
+        self.assertTrue(r['MotionDetectionScheduleTimeStart'] == '00:00:00')
+        self.assertTrue(r['MotionDetectionScheduleTimeStop'] == '00:00:00')
 
     def test_set_sound_detection(self):
         r = self.ipcam.set_sound_detection(True)
@@ -196,9 +215,28 @@ class TestDlinkDCSCam(unittest.TestCase):
         self.assertTrue('SoundDetectionDB' in r)
         self.assertTrue(r['SoundDetectionDB'] == '50')
 
+    def test_set_sound_detection_mode(self):
+        r = self.ipcam.set_sound_detection_mode(ipcam.SOUND_DETECTION_SCHEDULE)
+        self.assertTrue('SoundDetectionScheduleMode' in r)
+        self.assertTrue(r['SoundDetectionScheduleMode'] == '1')
+        r = self.ipcam.set_sound_detection_mode(ipcam.SOUND_DETECTION_ALWAYS)
+        self.assertTrue('SoundDetectionScheduleMode' in r)
+        self.assertTrue(r['SoundDetectionScheduleMode'] == '0')
+
     def test_set_sound_detection_schedule(self):
-        # TODO
-        self.assertTrue(False)
+        r = self.ipcam.set_sound_detection_schedule(
+            ipcam.MONDAY + ipcam.TUESDAY + ipcam.WEDNESDAY + ipcam.THURSDAY + ipcam.FRIDAY,
+            '06:30:00', '20:15:00'
+        )
+        self.assertTrue(r['SoundDetectionScheduleDay'] == '62')
+        self.assertTrue(r['SoundDetectionScheduleTimeStart'] == '06:30:00')
+        self.assertTrue(r['SoundDetectionScheduleTimeStop'] == '20:15:00')
+        r = self.ipcam.set_sound_detection_schedule(
+            0, '00:00:00', '00:00:00'
+        )
+        self.assertTrue(r['SoundDetectionScheduleDay'] == '0')
+        self.assertTrue(r['SoundDetectionScheduleTimeStart'] == '00:00:00')
+        self.assertTrue(r['SoundDetectionScheduleTimeStop'] == '00:00:00')
 
     def test_set_upload(self):
         # TODO
