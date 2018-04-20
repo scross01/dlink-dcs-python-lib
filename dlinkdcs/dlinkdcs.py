@@ -37,6 +37,21 @@ class DlinkDCSCamera(object):
     FRIDAY = 32
     SATURDAY = 64
 
+    FTP_MODE_ALWAYS = 0
+    FTP_MODE_SCHEDULE = 1
+    FTP_MODE_DETECTION = 2
+
+    FRAMES_PER_SECOND = 0
+    SECONDS_PER_FRAME = 1
+
+    UPLOAD_FILE_MODE_OVERWRITE = 0
+    UPLOAD_FILE_MODE_DATETIME = 1
+    UPLOAD_FILE_MODE_SEQUENCE = 3
+
+    UPLOAD_CREATE_FOLDER_OFF = 0
+    UPLOAD_CREATE_FOLDER_HOURLY = 60
+    UPLOAD_CREATE_FOLDER_DAILY = 1440
+
     def __init__(self, host, user, password, port=80):
         """Initialize with the IP camera connection settings."""
         self.host = host
@@ -296,6 +311,165 @@ class DlinkDCSCamera(object):
         }
         return self.send_command('sdbdetection.cgi', _params)
 
+    def set_upload_server(self, host, user, password, path='/',
+                          passive=True, port=21):
+        """
+        Set the IP Camera FTP upload server settings.
+
+        host -- FTP server hostname
+        user -- FTP server user
+        psasword -- FTP server password
+        path -- FTP server upload path (default '/')
+        passive -- Passive mode (deafault True)
+        port -- FTP server port (default 21)
+        """
+        _params = {
+            'FTPHostAddress': host,
+            'FTPUserName': user,
+            'FTPPassword': password,
+            'FTPDirectoryPath': path,
+            'FTPPortNumber': int(port),
+            'FTPPassiveMode': ('1' if passive else '0'),
+            'ConfigReboot': 'no',
+        }
+        return self.send_command('upload.cgi', _params)
+
+    def set_upload_image(self, enable):
+        """Enable or Disable Image upload."""
+        _params = {
+            'FTPScheduleEnable': ('1' if enable else '0'),
+            'ConfigReboot': 'no',
+        }
+        return self.send_command('upload.cgi', _params)
+
+    def set_upload_image_mode(self, mode):
+        """
+        Set the IP Camera image upload mode.
+
+        mode -- one of FTP_MODE_ALWAYS, FTP_MODE_SCHEDULE, FTP_MODE_DETECTION
+        """
+        _params = {
+            'FTPScheduleMode': int(mode),
+            'ConfigReboot': 'no',
+        }
+        return self.send_command('upload.cgi', _params)
+
+    def set_upload_image_settings(self,
+                                  filename='image',
+                                  filename_mode=1,
+                                  max_file_sequence_number=1024,
+                                  create_subfolder_minutes=0,
+                                  frequency_mode=0,
+                                  frames_per_second=-1,
+                                  seconds_per_frame=1):
+        """
+        Set the IP Camera upload image settings.
+
+        filename -- base file name
+        filename_mode -- UPLOAD_FILE_MODE_OVERWRITE, UPLOAD_FILE_MODE_DATETIME
+                         or UPLOAD_FILE_MODE_SEQUENCE
+        max_file_sequence_number -- maxamum sequence number if mode is
+                                    UPLOAD_FILE_MODE_SEQUENCE
+        create_subfolder_minutes -- create date/time subfolders
+        frequency_mode -- FRAMES_PER_SECONDS or SECONDS_PER_FRAME
+        frames_per_second -- frames (images) per second (1..3), use -1 for Auto
+        seconds_per_frame -- seconds between frames
+        """
+        _params = {
+            'FTPScheduleVideoFrequencyMode': int(frequency_mode),
+            'FTPScheduleFramePerSecond': int(frames_per_second),
+            'FTPScheduleSecondPerFrame': int(seconds_per_frame),
+            'FTPScheduleBaseFileName': filename,
+            'FTPScheduleFileMode': int(filename_mode),
+            'FTPScheduleMaxFileSequenceNumber': int(max_file_sequence_number),
+            'FTPCreateFolderInterval': int(create_subfolder_minutes),
+            'ConfigReboot': 'no',
+        }
+        return self.send_command('upload.cgi', _params)
+
+    def set_upload_image_schedule(self,
+                                  schedule_days=0,
+                                  schedule_start='00:00:00',
+                                  schedule_stop='00:00:00'):
+        """
+        Set the IP Camera upload image schedule.
+
+        These settings are used if mode is FTP_MODE_SCHEDULE
+
+        schedule_days -- value representing scheduled days (1..127)
+                         e.g. schedule_days = MONDAY + WEDNESDAY + FRIDAY
+        schedule_start -- daily start time in the format 'HH:MM:SS'
+        schedule_stop -- daily end time in the format 'HH:MM:SS'
+        """
+        _params = {
+            'FTPScheduleDay': schedule_days,
+            'FTPScheduleTimeStart': schedule_start,
+            'FTPScheduleTimeStop': schedule_stop,
+            'ConfigReboot': 'no',
+        }
+        return self.send_command('upload.cgi', _params)
+
+    def set_upload_video(self, enable):
+        """Enable or Disable Video upload."""
+        _params = {
+            'FTPScheduleEnableVideo': ('1' if enable else '0'),
+            'ConfigReboot': 'no',
+        }
+        return self.send_command('upload.cgi', _params)
+
+    def set_upload_video_settings(self, filename='video',
+                                       file_limit_size=2048,
+                                       file_limit_time=10):
+        """
+        Set the IP Camera upload video file settings.
+
+        filename -- base file name
+        file_limit_size -- video file size KBytes
+                           (default is 2048, max is 3072 KBytes)
+        file_limit_time -- video file lenght in seconds
+                           (default is 10, max is 15 seconds)
+        """
+        _params = {
+            'FTPScheduleBaseFileNameVideo': filename,
+            'FTPScheduleVideoLimitSize': int(file_limit_size),
+            'FTPScheduleVideoLimitTime': int(file_limit_time),
+            'ConfigReboot': 'no',
+        }
+        return self.send_command('upload.cgi', _params)
+
+    def set_upload_video_mode(self, mode):
+        """
+        Set the IP Camera upload video mode.
+
+        mode -- one of FTP_MODE_ALWAYS, FTP_MODE_SCHEDULE, FTP_MODE_DETECTION
+        """
+        _params = {
+            'FTPScheduleModeVideo': mode,
+            'ConfigReboot': 'no',
+        }
+        return self.send_command('upload.cgi', _params)
+
+    def set_upload_video_schedule(self, schedule_days=0,
+                                  schedule_start='00:00:00',
+                                  schedule_stop='00:00:00'):
+        """
+        Set the IP Camera upload video schedule.
+
+        These settings are used if mode is FTP_MODE_SCHEDULE
+
+        schedule_days -- value representing scheduled days (1..127)
+                         e.g. schedule_days = MONDAY + WEDNESDAY + FRIDAY
+        schedule_start -- daily start time in the format 'HH:MM:SS'
+        schedule_stop -- daily end time in the format 'HH:MM:SS'
+        """
+        _params = {
+            'FTPScheduleDayVideo': schedule_days,
+            'FTPScheduleTimeStartVideo': schedule_start,
+            'FTPScheduleTimeStopVideo': schedule_stop,
+            'ConfigReboot': 'no',
+        }
+        return self.send_command('upload.cgi', _params)
+
     # HELPERS
 
     def disable_motion_detection(self):
@@ -306,6 +480,14 @@ class DlinkDCSCamera(object):
         """Disable sound detection."""
         return self.set_sound_detection(False)
 
+    def disable_upload_image(self):
+        """Disable image upload."""
+        return self.set_upload_image(False)
+
+    def disable_upload_video(self):
+        """Disable video upload."""
+        return self.set_upload_video(False)
+
     def enable_motion_detection(self):
         """Enable motion detection."""
         return self.set_motion_detection(True)
@@ -313,3 +495,11 @@ class DlinkDCSCamera(object):
     def enable_sound_detection(self):
         """Enable sound detection."""
         return self.set_sound_detection(True)
+
+    def enable_upload_image(self):
+        """Enable image upload."""
+        return self.set_upload_image(True)
+
+    def enable_upload_video(self):
+        """Enable video upload."""
+        return self.set_upload_video(True)
