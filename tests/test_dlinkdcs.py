@@ -49,6 +49,10 @@ class TestDlinkDCSCam(unittest.TestCase):
         r = self.ipcam.get_iimage()
         self.assertTrue('VideoResolution' in r)
 
+    def test_get_image(self):
+        r = self.ipcam.get_image()
+        self.assertTrue('VideoResolution' in r)
+
     def test_get_inetwork(self):
         r = self.ipcam.get_inetwork()
         self.assertTrue('IPAddress' in r)
@@ -73,6 +77,10 @@ class TestDlinkDCSCam(unittest.TestCase):
         r = self.ipcam.get_ptz()
         self.assertTrue('p' in r)
         self.assertTrue('t' in r)
+
+    def test_get_ptz_presents(self):
+        r = self.ipcam.get_ptz_presets()
+        self.assertTrue('presets' in r)
 
     def test_get_sound_detection(self):
         r = self.ipcam.get_sound_detection()
@@ -328,6 +336,15 @@ class TestDlinkDCSCam(unittest.TestCase):
         self.assertTrue(int(r3['p']) == int(r1['p']))
         self.assertTrue(int(r3['t']) == int(r1['t']))
         self.ipcam.set_ptz()
+
+    def test_set_ptz_move_preset(self):
+        self.ipcam.set_ptz_move(25, 25)
+        r1 = self.ipcam.get_ptz_presets()
+        home = r1['home'].split(',')
+        self.ipcam.set_ptz_move_preset('1')
+        r2 = self.ipcam.get_ptz()
+        self.assertEqual(home[0], r2['p'])
+        self.assertEqual(home[1], r2['t'])
 
     def test_set_sound_detection(self):
         r = self.ipcam.set_sound_detection(True)

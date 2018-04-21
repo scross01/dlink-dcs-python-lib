@@ -121,6 +121,10 @@ class DlinkDCSCamera(object):
         """Get the IP Camera Image information."""
         return self.send_command('iimage.cgi')
 
+    def get_image(self):
+        """Get the IP Camera Image information."""
+        return self.send_command('image.cgi')
+
     def get_inetwork(self):
         """Get the IP Camera Network information."""
         return self.send_command('inetwork.cgi')
@@ -144,6 +148,10 @@ class DlinkDCSCamera(object):
     def get_ptz(self):
         """Get the IP Camera Network Pan Tilt Zoom."""
         return self.send_command('config/ptz_move.cgi')
+
+    def get_ptz_presets(self):
+        """Get the IP Camera Network Pan Tilt Zoom Preset List"""
+        return self.send_command('config/ptz_preset_list.cgi')
 
     def get_sound_detection(self):
         """Get the IP Camera Sound Detection settings."""
@@ -428,6 +436,13 @@ class DlinkDCSCamera(object):
             'posY': int(y),
         }
         return self.send_command('cgi/ptdc.cgi', _params)
+
+    def set_ptz_move_preset(self, preset):
+        """Move the IP Camera to a Preset Pan Tilt Zoom location."""
+        _params = {
+            'PanTiltPresetPositionMove': preset,
+        }
+        return self.send_command('pantiltcontrol.cgi', _params)
 
     def set_sound_detection(self, enable):
         """Enable or Disable the IP Camera Sound Detection."""
