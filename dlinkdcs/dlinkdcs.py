@@ -52,6 +52,20 @@ class DlinkDCSCamera(object):
     UPLOAD_CREATE_FOLDER_HOURLY = 60
     UPLOAD_CREATE_FOLDER_DAILY = 1440
 
+    EMAIL_TLS_NONE = 0
+    EMAIL_TLS_SSLTLS = 1
+    EMAIL_TLS_STARTTLS = 2
+
+    EMAIL_MODE_ALWAYS = 0
+    EMAIL_MODE_SCHEDULE = 1
+    EMAIL_MODE_MOTION = 2
+
+    EMAIL_MOTION_MODE_IMMIDIATE = 0
+    EMAIL_MOTION_MODE_MULTIFRAME = 1
+
+    EMAIL_MOTION_MULTIFRAME_SECONDS_HALF = 0
+    EMAIL_MOTION_MULTIFRAME_SECONDS_ONE = 1
+
     def __init__(self, host, user, password, port=80):
         """Initialize with the IP camera connection settings."""
         self.host = host
@@ -196,6 +210,124 @@ class DlinkDCSCamera(object):
             'ConfigReboot': 'no',
         }
         return self.send_command('daynight.cgi', _params)
+
+    def set_email_account(self, host, user, password, sender, receiver, tls, port=25):
+        """
+        Set the IP Camera Email Notification Account.
+
+        host -- email server host address
+        user -- email account user
+        password -- email account password
+        sender -- from email address of sender
+        receiver -- to email address of receiver
+        tls -- one of EMAIL_TLS_NONE, EMAIL_TLS_SSLTLS, EMAIL_TLS_STARTTLS
+        port -- email server port (default = 25)
+        """
+        _params = {
+            'EmailSMTPServerAddress': host,
+            'EmailSMTPPortNumber': int(port),
+            'EmailTLSAuthentication': int(tls),
+            'EmailUserName': user,
+            'EmailPassword': password,
+            'EmailReceiverAddress': receiver,
+            'EmailSenderAddress': sender,
+            'ConfigReboot': 'no',
+        }
+        return self.send_command('email.cgi', _params)
+
+    def set_email_image(self, enable):
+        """Enable or Disable IP Camera Email Images."""
+        _params = {
+            'EmailScheduleEnable': ('1' if enable else '0'),
+            'ConfigReboot': 'no',
+        }
+        return self.send_command('email.cgi', _params)
+
+    def set_email_image_mode(self, mode,
+                             motion_mode=0,
+                             motion_frame_interval=1):
+        """
+        Set the IP Camera Email Image Mode.
+
+        mode -- one of EMAIL_MODE_ALWAYS, EMAIL_MODE_SCHEDULE, EMAIL_MODE_MOTION
+        motion_mode -- EMAIL_MOTION_MODE_IMMIDIATE or EMAIL_MOTION_MODE_MULTIFRAME
+        motion_frame_interval -- set image interval if motion_mode is multi-frame.
+                                 One of EMAIL_MOTION_MULTIFRAME_SECONDS_HALF or
+                                 EMAIL_MOTION_MULTIFRAME_SECONDS_ONE
+        """
+        _params = {
+            'EmailScheduleMode': int(mode),
+            'EmailMotionMode': int(motion_mode),
+            'EmailMotionFrameInterval': int(motion_frame_interval),
+            'ConfigReboot': 'no',
+        }
+        return self.send_command('email.cgi', _params)
+
+    def set_email_image_schedule(self, schedule_days,
+                                 schedule_start, schedule_stop,
+                                 interval=300):
+        """
+        Set the IP Camera Email Schedule for Images.
+
+        Effective when Email Image mode is EMAIL_MODE_SCHEDULE
+
+        schedule_days -- value representing scheduled days (1..127)
+                         e.g. schedule_days = MONDAY + WEDNESDAY + FRIDAY
+        schedule_start -- daily start time in the format 'HH:MM:SS'
+        schedule_stop -- daily stop time in the format 'HH:MM:SS'
+        interval -- number of seconds between emails (default 300 seconds)
+        """
+        _params = {
+            'EmailScheduleDay': int(schedule_days),
+            'EmailScheduleTimeStart': schedule_start,
+            'EmailScheduleTimeStop': schedule_stop,
+            'EmailScheduleInterval': int(interval),
+            'ConfigReboot': 'no',
+        }
+        return self.send_command('email.cgi', _params)
+
+    def set_email_video(self, enable):
+        """Enable or Disable IP Camera Email Videos."""
+        _params = {
+            'EmailScheduleEnableVideo': ('1' if enable else '0'),
+            'ConfigReboot': 'no',
+        }
+        return self.send_command('email.cgi', _params)
+
+    def set_email_video_mode(self, mode):
+        """
+        Set the IP Camera Email Videos Mode.
+
+        mode -- one of EMAIL_MODE_ALWAYS, EMAIL_MODE_SCHEDULE, EMAIL_MODE_MOTION
+        """
+        _params = {
+            'EmailScheduleModeVideo': int(mode),
+            'ConfigReboot': 'no',
+        }
+        return self.send_command('email.cgi', _params)
+
+    def set_email_video_schedule(self, schedule_days,
+                                 schedule_start, schedule_stop,
+                                 interval=300):
+        """
+        Set the IP Camera Email Schedule for Videos.
+
+        Effective when Email Image mode is EMAIL_MODE_SCHEDULE
+
+        schedule_days -- value representing scheduled days (1..127)
+                         e.g. schedule_days = MONDAY + WEDNESDAY + FRIDAY
+        schedule_start -- daily start time in the format 'HH:MM:SS'
+        schedule_stop -- daily stop time in the format 'HH:MM:SS'
+        interval -- number of seconds between emails (default 300 seconds)
+        """
+        _params = {
+            'EmailScheduleDayVideo': int(schedule_days),
+            'EmailScheduleTimeStartVideo': schedule_start,
+            'EmailScheduleTimeStopVideo': schedule_stop,
+            'EmailScheduleIntervalVideo': int(interval),
+            'ConfigReboot': 'no',
+        }
+        return self.send_command('email.cgi', _params)
 
     def set_motion_detection(self, enable):
         """Enable or Disable IP Camera Motion Detection."""
@@ -418,8 +550,8 @@ class DlinkDCSCamera(object):
         return self.send_command('upload.cgi', _params)
 
     def set_upload_video_settings(self, filename='video',
-                                       file_limit_size=2048,
-                                       file_limit_time=10):
+                                  file_limit_size=2048,
+                                  file_limit_time=10):
         """
         Set the IP Camera upload video file settings.
 

@@ -144,9 +144,108 @@ class TestDlinkDCSCam(unittest.TestCase):
         self.assertTrue(r['IRLedScheduleFriEnd'] == '00:00')
         self.assertTrue(r['IRLedScheduleSatEnd'] == '00:00')
 
-    def test_set_email(self):
-        # TODO
-        self.assertTrue(False)
+    def test_set_email_account(self):
+        r = self.ipcam.set_email_account(
+            'smtp.example.com',
+            'user@example.com',
+            'Pa55_Word',
+            'sender@example.com',
+            'receiver@example.com',
+            ipcam.EMAIL_TLS_STARTTLS,
+            '587',
+        )
+        self.assertTrue(r['EmailSMTPServerAddress'] == 'smtp.example.com')
+        self.assertTrue(r['EmailSMTPPortNumber'] == '587')
+        self.assertTrue(r['EmailTLSAuthentication'] == '2')
+        self.assertTrue(r['EmailUserName'] == 'user@example.com')
+        self.assertTrue(r['EmailPassword'] == 'Pa55_Word')
+        self.assertTrue(r['EmailReceiverAddress'] == 'receiver@example.com')
+        self.assertTrue(r['EmailSenderAddress'] == 'sender@example.com')
+        r = self.ipcam.set_email_account(
+            '',
+            '',
+            '',
+            '',
+            '',
+            0,
+            '25',
+        )
+
+    def test_set_email_image(self):
+        r = self.ipcam.set_email_image(True)
+        self.assertTrue(r['EmailScheduleEnable'] == '1')
+        r = self.ipcam.set_email_image(False)
+        self.assertTrue(r['EmailScheduleEnable'] == '0')
+
+    def test_set_email_image_mode(self):
+        r = self.ipcam.set_email_image_mode(
+            ipcam.EMAIL_MODE_MOTION,
+            ipcam.EMAIL_MOTION_MODE_IMMIDIATE
+        )
+        self.assertTrue(r['EmailScheduleMode'] == '2')
+        self.assertTrue(r['EmailMotionMode'] == '0')
+        r = self.ipcam.set_email_image_mode(
+            ipcam.EMAIL_MODE_MOTION,
+            ipcam.EMAIL_MOTION_MODE_MULTIFRAME,
+            ipcam.EMAIL_MOTION_MULTIFRAME_SECONDS_HALF
+        )
+        self.assertTrue(r['EmailScheduleMode'] == '2')
+        self.assertTrue(r['EmailMotionMode'] == '1')
+        self.assertTrue(r['EmailMotionFrameInterval'] == '0')
+        r = self.ipcam.set_email_image_mode(ipcam.EMAIL_MODE_SCHEDULE)
+        self.assertTrue(r['EmailScheduleMode'] == '1')
+        r = self.ipcam.set_email_image_mode(ipcam.EMAIL_MODE_ALWAYS)
+        self.assertTrue(r['EmailScheduleMode'] == '0')
+        self.assertTrue(r['EmailMotionMode'] == '0')
+        self.assertTrue(r['EmailMotionFrameInterval'] == '1')
+
+    def test_set_email_image_schedule(self):
+        r = self.ipcam.set_email_image_schedule(
+            ipcam.MONDAY + ipcam.TUESDAY + ipcam.WEDNESDAY + ipcam.THURSDAY + ipcam.FRIDAY,
+            '06:30:00', '20:15:00', 600
+        )
+        self.assertTrue(r['EmailScheduleDay'] == '62')
+        self.assertTrue(r['EmailScheduleTimeStart'] == '06:30:00')
+        self.assertTrue(r['EmailScheduleTimeStop'] == '20:15:00')
+        self.assertTrue(r['EmailScheduleInterval'] == '600')
+        r = self.ipcam.set_email_image_schedule(
+            0, '00:00:00', '00:00:00'
+        )
+        self.assertTrue(r['EmailScheduleDay'] == '0')
+        self.assertTrue(r['EmailScheduleTimeStart'] == '00:00:00')
+        self.assertTrue(r['EmailScheduleTimeStop'] == '00:00:00')
+        self.assertTrue(r['EmailScheduleInterval'] == '300')
+
+    def test_set_email_video(self):
+        r = self.ipcam.set_email_video(True)
+        self.assertTrue(r['EmailScheduleEnableVideo'] == '1')
+        r = self.ipcam.set_email_video(False)
+        self.assertTrue(r['EmailScheduleEnableVideo'] == '0')
+
+    def test_set_email_video_mode(self):
+        r = self.ipcam.set_email_video_mode(ipcam.EMAIL_MODE_MOTION)
+        self.assertTrue(r['EmailScheduleModeVideo'] == '2')
+        r = self.ipcam.set_email_video_mode(ipcam.EMAIL_MODE_SCHEDULE)
+        self.assertTrue(r['EmailScheduleModeVideo'] == '1')
+        r = self.ipcam.set_email_video_mode(ipcam.EMAIL_MODE_ALWAYS)
+        self.assertTrue(r['EmailScheduleModeVideo'] == '0')
+
+    def test_set_email_video_schedule(self):
+        r = self.ipcam.set_email_video_schedule(
+            ipcam.MONDAY + ipcam.TUESDAY + ipcam.WEDNESDAY + ipcam.THURSDAY + ipcam.FRIDAY,
+            '06:30:00', '20:15:00', 600
+        )
+        self.assertTrue(r['EmailScheduleDayVideo'] == '62')
+        self.assertTrue(r['EmailScheduleTimeStartVideo'] == '06:30:00')
+        self.assertTrue(r['EmailScheduleTimeStopVideo'] == '20:15:00')
+        self.assertTrue(r['EmailScheduleIntervalVideo'] == '600')
+        r = self.ipcam.set_email_video_schedule(
+            0, '00:00:00', '00:00:00'
+        )
+        self.assertTrue(r['EmailScheduleDayVideo'] == '0')
+        self.assertTrue(r['EmailScheduleTimeStartVideo'] == '00:00:00')
+        self.assertTrue(r['EmailScheduleTimeStopVideo'] == '00:00:00')
+        self.assertTrue(r['EmailScheduleIntervalVideo'] == '300')
 
     def test_set_motion_detection(self):
         r = self.ipcam.set_motion_detection(True)
