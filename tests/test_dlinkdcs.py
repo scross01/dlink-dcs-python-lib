@@ -2,6 +2,7 @@ import os.path
 import sys
 import unittest
 import logging
+import time
 
 from configparser import ConfigParser
 from dlinkdcs import DlinkDCSCamera as ipcam
@@ -27,6 +28,10 @@ class TestDlinkDCSCam(unittest.TestCase):
     def test_get_cgi_version(self):
         r = self.ipcam.get_cgi_version()
         self.assertTrue('CGIVersion' in r)
+
+    def test_get_common_info(self):
+        r = self.ipcam.get_common_info()
+        self.assertTrue('model' in r)
 
     def test_get_date_time(self):
         r = self.ipcam.get_date_time()
@@ -64,9 +69,18 @@ class TestDlinkDCSCam(unittest.TestCase):
         r = self.ipcam.get_network()
         self.assertTrue('IPAddress' in r)
 
+    def test_get_ptz(self):
+        r = self.ipcam.get_ptz()
+        self.assertTrue('p' in r)
+        self.assertTrue('t' in r)
+
     def test_get_sound_detection(self):
         r = self.ipcam.get_sound_detection()
         self.assertTrue('SoundDetectionEnable' in r)
+
+    def test_get_stream_info(self):
+        r = self.ipcam.get_stream_info()
+        self.assertTrue('resolutions' in r)
 
     def test_get_user(self):
         r = self.ipcam.get_user()
@@ -293,6 +307,27 @@ class TestDlinkDCSCam(unittest.TestCase):
         self.assertTrue(r['MotionDetectionScheduleDay'] == '0')
         self.assertTrue(r['MotionDetectionScheduleTimeStart'] == '00:00:00')
         self.assertTrue(r['MotionDetectionScheduleTimeStop'] == '00:00:00')
+
+    def test_set_ptz(self):
+        r = self.ipcam.set_ptz(100, 50, 0)
+        self.assertTrue(r['p'] == '100')
+        self.assertTrue(r['t'] == '50')
+        r = self.ipcam.set_ptz()
+
+    def test_set_ptz_move(self):
+        self.ipcam.set_ptz()
+        r1 = self.ipcam.get_ptz()
+        self.ipcam.set_ptz_move(25, 25)
+        time.sleep(3)
+        r2 = self.ipcam.get_ptz()
+        self.assertTrue(int(r2['p']) == int(r1['p']) + 25)
+        self.assertTrue(int(r2['t']) == int(r1['t']) + 25)
+        self.ipcam.set_ptz_move(-25, -25)
+        time.sleep(3)
+        r3 = self.ipcam.get_ptz()
+        self.assertTrue(int(r3['p']) == int(r1['p']))
+        self.assertTrue(int(r3['t']) == int(r1['t']))
+        self.ipcam.set_ptz()
 
     def test_set_sound_detection(self):
         r = self.ipcam.set_sound_detection(True)

@@ -85,8 +85,10 @@ class DlinkDCSCamera(object):
         """Unmarshal the multiline key value pair response."""
         _obj = {}
         for line in response.splitlines():
-            _keyvalue = line.strip().split("=")
-            _obj[_keyvalue[0]] = _keyvalue[1]
+            # ignore blank lines and xml <result> block
+            if line != '' and not line.startswith('<'):
+                _keyvalue = line.strip().split("=")
+                _obj[_keyvalue[0]] = _keyvalue[1]
         return _obj
 
     def time_to_string(self, time):
@@ -98,6 +100,10 @@ class DlinkDCSCamera(object):
     def get_cgi_version(self):
         """Get IP Camera CGI version."""
         return self.send_command('cgiversion.cgi')
+
+    def get_common_info(self):
+        """Get IP Camera Information."""
+        return self.send_command('common/info.cgi')
 
     def get_date_time(self):
         """Get IP Camera Data Time settings."""
@@ -135,9 +141,17 @@ class DlinkDCSCamera(object):
         """Get the IP Camera Network settings."""
         return self.send_command('network.cgi')
 
+    def get_ptz(self):
+        """Get the IP Camera Network Pan Tilt Zoom."""
+        return self.send_command('config/ptz_move.cgi')
+
     def get_sound_detection(self):
         """Get the IP Camera Sound Detection settings."""
         return self.send_command('sdbdetection.cgi')
+
+    def get_stream_info(self):
+        """Get the IP Camera Video stream info."""
+        return self.send_command('config/stream_info.cgi')
 
     def get_upload(self):
         """Get the IP Camera FTP Upload settings."""
@@ -390,6 +404,31 @@ class DlinkDCSCamera(object):
         }
         return self.send_command('motion.cgi', _params)
 
+
+    def set_ptz(self, pan=167, tilt=25, zoom=0):
+        """
+        Set the IP Camera Pan Tilt Zoom location.
+
+        pan -- 0 to 336 (default: 167)
+        tile -- 0 to 106 (default: 25)
+        zoom --
+        """
+        _params = {
+            'p': int(pan),
+            't': int(tilt),
+            'z': int(zoom),
+        }
+        return self.send_command('config/ptz_move.cgi', _params)
+
+    def set_ptz_move(self, x, y):
+        """Move the IP Camera Pan Tilt Zoom location."""
+        _params = {
+            'command': 'set_relative_pos',
+            'posX': int(x),
+            'posY': int(y),
+        }
+        return self.send_command('cgi/ptdc.cgi', _params)
+
     def set_sound_detection(self, enable):
         """Enable or Disable the IP Camera Sound Detection."""
         _params = {
@@ -604,6 +643,14 @@ class DlinkDCSCamera(object):
 
     # HELPERS
 
+    def disable_email_image(self):
+        """Disable image emails."""
+        return self.set_email_image(False)
+
+    def disable_email_video(self):
+        """Disable video emails."""
+        return self.set_email_video(False)
+
     def disable_motion_detection(self):
         """Disable motion detection."""
         return self.set_motion_detection(False)
@@ -619,6 +666,14 @@ class DlinkDCSCamera(object):
     def disable_upload_video(self):
         """Disable video upload."""
         return self.set_upload_video(False)
+
+    def enable_email_image(self):
+        """Enable image emails."""
+        return self.set_email_image(True)
+
+    def enable_email_video(self):
+        """Enable video emails."""
+        return self.set_email_video(True)
 
     def enable_motion_detection(self):
         """Enable motion detection."""
