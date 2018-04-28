@@ -7,7 +7,7 @@ This library has been built for an tested with the DLINK DCS 5025L Wireless Pan 
 Running Tests
 -------------
 
-Running the library tests will update and rest various IP Camera settings. If you need to retain you current configuration you should **manually save your IP Camera configuration** in the DLINK web console and restore the configuration running the tests.
+Running the library tests will update and reset various IP Camera settings. If you need to retain you current configuration you should **manually save your IP Camera configuration** in the DLINK web console and restore the configuration running the tests.
 
 Create a file  `tests/camtest.cfg` with the test camera connection details.
 
