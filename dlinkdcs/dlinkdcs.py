@@ -1,5 +1,5 @@
 """
-DLINK DCS IP Camera Phyton SDK.
+DLINK DCS IP Camera Python SDK.
 
 Tested with DLINK DCS 5025L.
 """
