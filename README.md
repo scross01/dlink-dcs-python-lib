@@ -1,13 +1,13 @@
 Python Library for DLINK DCS 5025L Wireless IP Camera
 =====================================================
 
-This library has been built for an tested with the DLINK DCS 5025L Wireless Pan Tile IP Webcam. The library may work fully or partially with other DLINK IP Cameras (untested).
+This library has been built for and tested with the DLINK DCS 5025L Wireless Pan Tile IP Webcam. The library may work fully or partially with other DLINK IP Cameras (untested).
 
 
 Running Tests
 -------------
 
-Running the library tests will update and reset various IP Camera settings. If you need to retain you current configuration you should **manually save your IP Camera configuration** in the DLINK web console and restore the configuration running the tests.
+Running the library tests will update and reset various IP Camera settings. If you need to retain you current configuration you should **manually save your IP Camera configuration** in the DLINK web console and restore the configuration after running the tests.
 
 Create a file  `tests/camtest.cfg` with the test camera connection details.
 
